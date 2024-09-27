@@ -1,5 +1,7 @@
-const User = require('../Models/userModel')
+const bcrypt = require('bcrypt')
+const Admin = require('../Models/adminModel')
 
+// admin registration
 const adminReg = (req, res) => {
     res.set({
         'Allow-access-Allow-Origin' : '*'
@@ -20,11 +22,42 @@ const adminRegistration = async(req, res) => {
         })
 
         await admin.save()
-        console.log('Admin record inserted successfully - collection(admin)')
-        return res.redirect('public/success.html')
+        console.log('Admin Record Inserted Successfully - Collection(admin)')
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error(error);
+        return res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+//admin login
+const adminLog = (re, res)=>{
+    res.set({
+        'Allow-access-Allow-Origin' : '*'
+    })
+    return res.redirect('/public/adminLog.html')
+}
+
+const adminLogin = async(req, res)=>{
+    const {username, password} = req.body
+
+    try{
+        const admin = await Admin.findOne({username})
+        if(!admin){
+            console.log('Admin not found')
+            return res.status(404).redirect('/public/adminLog.html')
+        }
+
+        const match = await bcrypt.compare(password, admin.password)
+        if(!match){
+            console.log('Invalid Password')
+            return res.status(404).redirect('/public/adminLog.html')
+        }
+        console.log('Admin Login Successful')
+        return res.status(201).redirect('/public/success.html')
     }catch(error){
         console.error(error)
-        return res.redirect('public/adminReg.html')
+        return res.status(501).send('Internal Server Error')
     }
 }
 
@@ -83,5 +116,7 @@ function generateUsersHTML(users){
 module.exports = {
     adminReg,
     adminRegistration,
+    adminLog,
+    adminLogin,
     viewUsers
 }

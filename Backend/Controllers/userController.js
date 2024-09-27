@@ -1,35 +1,32 @@
 const bcrypt = require('bcrypt');
 const User = require('../Models/userModel');
 
-
-// User registration
+// User registration 
 const userReg = (req, res) => {
     res.set({
         "Allow-access-Allow-Origin": '*'
     });
-    return res.redirect('/public/userReg.html');
+    return res.redirect('public/userReg.html');
 };
 
 const userRegistration = async (req, res) => {
-    const { username, email, phone, password } = req.body;
+    const {username, email, phone, password} = req.body;
 
     try {
-        // Hash the password before storing it
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
+        const hashPassword = await bcrypt.hash(password, 10);
         const user = new User({
             username,
             email,
             phone,
-            password: hashedPassword
+            password: hashPassword
         });
 
         await user.save();
-        console.log("User Record Inserted Successfully");
-        return res.redirect('/public/success.html');
+        console.log("User Record Inserted Successfully - Collection(user)");
+        return res.status(200).json({ success: true });
     } catch (error) {
         console.error(error);
-        return res.status(400).redirect('/public/userReg.html');
+        return res.status(400).json({ success: false, message: error.message });
     }
 };
 
@@ -38,29 +35,28 @@ const userLog = (req, res) => {
     res.set({
         "Allow-access-Allow-Origin": '*'
     });
-    return res.redirect('/public/03_user_login.html');
+    return res.redirect('/public/userLog.html');
 };
 
 const userLogin = async (req, res) => {
-    const { email, password } = req.body;
+    const {username, password} = req.body;
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ username });
 
         if (!user) {
             console.log("User not found");
-            return res.send('<script>alert("User not found. Please check your credentials."); window.location.href="/public/03_user_login.html";</script>');
+            return res.status(404).redirect('/public/userLog.html');        
         }
 
         // Compare the provided password with the stored hashed password
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
             console.log("Invalid password");
-            return res.status(404).redirect('/public/03_user_login.html');
+            return res.status(404).redirect('/public/userLog.html');
         }
-
         console.log("User Login Successful");
-        return res.status(201).redirect('/public/05_user_profile.html');
+        return res.status(201).redirect('/public/success.html');
     } catch (error) {
         console.error(error);
         return res.status(500).send('Internal Server Error');

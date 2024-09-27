@@ -17,13 +17,10 @@ const adminRoutes = require('./Backend/Routes/adminRoutes');
 const userRoutes = require('./Backend/Routes/userRoutes'); 
 
 // Use routes
+// Define a root route
+app.get('/', (req, res) => { return res.redirect('/public/index.html'); });
 app.use('/api/admin', adminRoutes); // Admin API endpoints
 app.use('/api/user', userRoutes); // User API endpoints
-
-// Define a root route
-app.get('/', (req, res) => {
-    return res.redirect('/public/index.html'); 
-});
 
 // Start the server
 app.listen(port, () => {

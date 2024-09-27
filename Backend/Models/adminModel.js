@@ -30,4 +30,7 @@ const adminSchema = new mongoose.Schema(
 )
 
 const Admin = mongoose.model('Admin', adminSchema)
+// Specify 'admin' as the collection name
+//const Admin = mongoose.model('Admin', adminSchema, 'admin')
+
 module.exports = Admin
